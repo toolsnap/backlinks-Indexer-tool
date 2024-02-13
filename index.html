@@ -116,6 +116,47 @@
     </ul>
 </div>
 <script>
+  // server.js
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/url_database', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+// Create a URL Schema
+const urlSchema = new mongoose.Schema({
+  url: String
+});
+
+const URL = mongoose.model('URL', urlSchema);
+
+// Route to save a URL
+app.post('/save-url', async (req, res) => {
+  const { url } = req.body;
+  const newURL = new URL({ url });
+  await newURL.save();
+  res.status(200).json({ message: 'URL saved successfully' });
+});
+
+// Route to fetch all URLs
+app.get('/urls', async (req, res) => {
+  const urls = await URL.find();
+  res.status(200).json(urls);
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+
   document.getElementById('submitForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const url = document.getElementById('urlInput').value.trim(); // Trim whitespace
